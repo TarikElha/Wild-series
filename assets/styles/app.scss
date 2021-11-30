@@ -1,0 +1,13 @@
+@import "~bootstrap/scss/bootstrap";
+
+$font: Avant Garde,Avantgarde,Century Gothic,CenturyGothic,AppleGothic,sans-serif;
+$primary-color-one: #004777;
+$primary-color-two: #A30000;
+$secondary-color-one: #85FBFF;
+$secondary-color-two: #FF7700;
+
+body {
+    font-family: $font;
+    color: $primary-color-two;
+}
+
