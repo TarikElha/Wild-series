@@ -7,7 +7,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Program;
-use App\Repository\ProgramRepository;
+use App\Entity\Season;
+use App\Entity\Episode;
 use App\Repository\SeasonRepository;
 use App\Repository\EpisodeRepository;
 
@@ -29,13 +30,12 @@ class ProgramController extends AbstractController
     }
 
     /**
-     * @Route("/{id<^[0-9]+$>}", name="show")
+     * @Route("/{program<^[0-9]+$>}", name="show")
      * @return Response
      */
-    public function show(int $id, ProgramRepository $programRepository, SeasonRepository $seasonRepository): Response
+    public function show(Program $program, SeasonRepository $seasonRepository): Response
     {
-        $program = $programRepository->findOneBy(['id' => $id]);
-        $seasons = $seasonRepository->findBy(['program' => $id], ['number' => 'ASC']);
+        $seasons = $seasonRepository->findBy(['program' => $program->getId()], ['number' => 'ASC']);
 
         if (!$program) {
             throw $this->createNotFoundException(
@@ -46,15 +46,22 @@ class ProgramController extends AbstractController
     }
 
     /**
-     * @Route("/{programId<^[0-9]+$>}/seasons/{seasonId<^[0-9]+$>}", name="season_show")
+     * @Route("/{program<^[0-9]+$>}/season/{season<^[0-9]+$>}", name="season_show")
      * @return Response
      */
-    public function showSeason(int $programId, int $seasonId, EpisodeRepository $episodeRepository, SeasonRepository $seasonRepository, ProgramRepository $programRepository):Response
+    public function showSeason(Program $program, Season $season, EpisodeRepository $episodeRepository):Response
     {
-        $season = $seasonRepository->findOneBy(['id' => $seasonId]);
-        $program = $programRepository->findOneBy(['id' => $programId]);
-        $episodes = $episodeRepository->findBy(['season' => $seasonId]);
+        $episodes = $episodeRepository->findBy(['season' => $season->getId()]);
 
         return $this->render('program/season_show.html.twig', ['season' => $season, 'program' => $program, 'episodes' => $episodes]);
+    }
+        
+    /**
+     * @Route("/{program<^[0-9]+$>}/season/{season<^[0-9]+$>}/episode/{episode<^[0-9]+$>}", name="episode_show")
+     * @return Response
+     */
+    public function showEpisode(Program $program, Season $season, Episode $episode):Response
+    {
+        return $this->render('program/episode_show.html.twig', ['season' => $season, 'program' => $program, 'episode' => $episode]);
     }
 }
