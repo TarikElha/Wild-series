@@ -2,7 +2,8 @@
 
 namespace App\Controller;
 
-
+use Symfony\Component\HttpFoundation\Request;
+use App\Form\ProgramType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,6 +28,25 @@ class ProgramController extends AbstractController
                         ->findAll();
         
         return $this->render('program/index.html.twig', ['programs' => $programs]);
+    }
+
+    /**
+     * @Route("/new", name="new")
+     */
+    public function new(Request $request)
+    {
+        $program = new Program();
+        $form = $this->createForm(ProgramType::class, $program);
+        $form->handleRequest($request);
+
+        if($form->isSubmitted()){
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($program);
+            $entityManager->flush();
+            return $this->redirectToRoute('program_index');
+        }
+
+        return $this->render('program/new.html.twig', ['formView' => $form->createView(),]);
     }
 
     /**
@@ -62,7 +82,6 @@ class ProgramController extends AbstractController
      */
     public function showEpisode(Program $program, Season $season, Episode $episode):Response
     {
-        
         return $this->render('program/episode_show.html.twig', ['season' => $season, 'program' => $program, 'episode' => $episode]);
     }
 }

@@ -1,0 +1,10 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Wild Series{% endblock %}
+
+{% block body %}
+    {{ form_start(formView) }}
+    {{ form_widget(formView) }}
+    <button type="submit">Add program</button>
+    {{ form_end(formView) }}
+{% endblock %}
