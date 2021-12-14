@@ -8,7 +8,7 @@
 
     {% for program in programs %}
     <div>
-        <h2><a href="{{ path('program_show', { id : program.id }) }}">{{ program.id }} / {{ program.title }}</a></h2>
+        <h2><a href="{{ path('program_show', { program : program.id }) }}">{{ program.id }} / {{ program.title }}</a></h2>
         <p>{{ program.summary }}</p>
     </div>
     {% else %}
