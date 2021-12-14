@@ -61,7 +61,7 @@ class Season
         return $this->program;
     }
 
-    public function setProgramId(?Program $program): self
+    public function setProgram(?Program $program): self
     {
         $this->program = $program;
 
