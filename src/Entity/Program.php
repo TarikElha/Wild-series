@@ -6,6 +6,7 @@ use App\Repository\ProgramRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -32,7 +33,8 @@ class Program
      * @ORM\Column(type="text")
      * @Assert\NotBlank(message="Veuillez renseigner la synopsis de la série.")
      * @Assert\Regex(
-     *      pattern="/\W(plus belle la vie)/",
+     *      pattern="/plus belle la vie/",
+     *      match=false,
      *      message="On parle de vraies séries ici !"
      * )
      */
