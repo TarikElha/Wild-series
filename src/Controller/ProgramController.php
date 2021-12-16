@@ -84,4 +84,15 @@ class ProgramController extends AbstractController
     {
         return $this->render('program/episode_show.html.twig', ['season' => $season, 'program' => $program, 'episode' => $episode]);
     }
+
+    #[Route('/{id}', name: 'program_delete', methods: ['POST'])]
+    public function delete(Request $request, Season $program, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$program->getId(), $request->request->get('_token'))) {
+            $entityManager->remove($program);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('program_index', [], Response::HTTP_SEE_OTHER);
+    }
 }
