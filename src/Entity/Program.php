@@ -5,10 +5,14 @@ namespace App\Entity;
 use App\Repository\ProgramRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=ProgramRepository::class)
+ * @Assert\EnableAutoMapping()
+ * @UniqueEntity(fields={"title"}, message="Cette série existe déjà.")
  */
 class Program
 {
@@ -21,11 +25,18 @@ class Program
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Veuillez renseigner un titre.")
      */
     private $title;
 
     /**
      * @ORM\Column(type="text")
+     * @Assert\NotBlank(message="Veuillez renseigner la synopsis de la série.")
+     * @Assert\Regex(
+     *      pattern="/plus belle la vie/",
+     *      match=false,
+     *      message="On parle de vraies séries ici !"
+     * )
      */
     private $summary;
 
