@@ -1,0 +1,19 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Wild Series{% endblock %}
+
+{% block body %}
+
+    <h1>{{ actor.name }} : </h1>
+
+    {% for program in programs %}
+        <h2><a href="{{ path('program_show', { program : program.id }) }}">{{ program.id }} / {{ program.title }}</a></h2>
+    {% else %}
+        Aucune série trouvée pour l'acteur {{ actor.name }}.
+    {% endfor %}
+
+    <a href="{{ path('app_index') }}">
+        Retour à l'accueil
+    </a>
+
+{% endblock %}
