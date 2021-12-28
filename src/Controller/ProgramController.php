@@ -7,11 +7,13 @@ use App\Form\ProgramType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use App\Entity\Program;
 use App\Entity\Season;
 use App\Entity\Episode;
 use App\Repository\SeasonRepository;
 use App\Repository\EpisodeRepository;
+use App\Service\Slugify;
 
     /**
      * @Route("/program", name="program_")
@@ -33,13 +35,15 @@ class ProgramController extends AbstractController
     /**
      * @Route("/new", name="new")
      */
-    public function new(Request $request)
+    public function new(Request $request, Slugify $slugify)
     {
         $program = new Program();
         $form = $this->createForm(ProgramType::class, $program);
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()){
+            $slug = $slugify->generate($program->getTitle());
+            $program->setSlug($slug);
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($program);
             $entityManager->flush();
@@ -50,7 +54,7 @@ class ProgramController extends AbstractController
     }
 
     /**
-     * @Route("/{program<^[0-9]+$>}", name="show")
+     * @Route("/{slug}", name="show")
      * @return Response
      */
     public function show(Program $program, SeasonRepository $seasonRepository): Response
@@ -66,7 +70,7 @@ class ProgramController extends AbstractController
     }
 
     /**
-     * @Route("/{program<^[0-9]+$>}/season/{season<^[0-9]+$>}", name="season_show")
+     * @Route("/{slug}/season/{season<^[0-9]+$>}", name="season_show")
      * @return Response
      */
     public function showSeason(Program $program, Season $season, EpisodeRepository $episodeRepository):Response
@@ -77,7 +81,9 @@ class ProgramController extends AbstractController
     }
         
     /**
-     * @Route("/{program<^[0-9]+$>}/season/{season<^[0-9]+$>}/episode/{episode<^[0-9]+$>}", name="episode_show")
+     * @Route("/{program_slug}/season/{season<^[0-9]+$>}/episode/{episode_slug}", name="episode_show")
+     * @ParamConverter("program", class="App\Entity\Program", options={"mapping": {"program_slug": "slug"}})
+     * @ParamConverter("episode", class="App\Entity\Episode", options={"mapping": {"episode_slug": "slug"}})
      * @return Response
      */
     public function showEpisode(Program $program, Season $season, Episode $episode):Response
@@ -86,7 +92,7 @@ class ProgramController extends AbstractController
     }
 
     #[Route('/{id}', name: 'program_delete', methods: ['POST'])]
-    public function delete(Request $request, Season $program, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Program $program, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$program->getId(), $request->request->get('_token'))) {
             $entityManager->remove($program);
