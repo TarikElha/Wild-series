@@ -7,7 +7,8 @@
     <h2>Episode n°{{ episode.number }}</h2>
     <p>Résumé :</p> 
     <p>{{ episode.synopsis }}</p>
-    <a href="{{ path('program_season_show', { program : program.id, season : season.id }) }}">
+    <a href="{{ path('episode_edit', { slug : episode.slug }) }}">Edition de l'épisode</a>
+    <a href="{{ path('program_season_show', { slug : program.slug, season : season.id }) }}">
         Retour à la liste des épisodes
     </a> 
 {% endblock %}

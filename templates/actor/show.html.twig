@@ -7,7 +7,7 @@
     <h1>{{ actor.name }} : </h1>
 
     {% for program in programs %}
-        <h2><a href="{{ path('program_show', { program : program.id }) }}">{{ program.id }} / {{ program.title }}</a></h2>
+        <h2><a href="{{ path('program_show', { slug : program.slug }) }}">{{ program.id }} / {{ program.title }}</a></h2>
     {% else %}
         Aucune série trouvée pour l'acteur {{ actor.name }}.
     {% endfor %}
