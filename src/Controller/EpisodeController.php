@@ -11,6 +11,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 
 #[Route('/episode')]
 class EpisodeController extends AbstractController
@@ -24,7 +26,7 @@ class EpisodeController extends AbstractController
     }
 
     #[Route('/new', name: 'episode_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, Slugify $slugify): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, Slugify $slugify, MailerInterface $mailer): Response
     {
         $episode = new Episode();
         $form = $this->createForm(EpisodeType::class, $episode);
@@ -35,6 +37,14 @@ class EpisodeController extends AbstractController
             $episode->setSlug($slug);
             $entityManager->persist($episode);
             $entityManager->flush();
+
+            $email = (new Email())
+                ->from($this->getParameter('mailer_from'))
+                ->to('your_email@example.com')
+                ->subject('Un nouvel épisode vient d\'être publié !')
+                ->html($this->renderView('episode/newEpisodeEmail.html.twig', ['episode' => $episode, 'program' => $episode->getSeason()->getProgram(),]));
+            
+            $mailer->send($email);
 
             return $this->redirectToRoute('episode_index', [], Response::HTTP_SEE_OTHER);
         }
