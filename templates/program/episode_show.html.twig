@@ -7,8 +7,24 @@
     <h2>Episode n°{{ episode.number }}</h2>
     <p>Résumé :</p> 
     <p>{{ episode.synopsis }}</p>
+    <div>
+        <h2>Commentaires :</h2>
+        <ul>
+            {% for comment in comments %}
+                <li>{{ comment.user.email }} => {{ comment.rate }} / 5, {{ comment.comment }}</li>
+            {% else %}
+                <p>Aucun commentaire pour cet épisode.</p>
+            {% endfor %}
+        </ul>
+    </div>
+    {% if app.user %}
+        {{ form_start(formView) }}
+        {{ form_widget(formView) }}
+        <button type="submit">Valider</button>
+        {{ form_end(formView) }}
+    {% endif %}
     <a href="{{ path('episode_edit', { slug : episode.slug }) }}">Edition de l'épisode</a>
     <a href="{{ path('program_season_show', { slug : program.slug, season : season.id }) }}">
         Retour à la liste des épisodes
-    </a> 
+    </a>
 {% endblock %}
