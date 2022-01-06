@@ -10,7 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Program;
 use App\Entity\Season;
 use App\Entity\Episode;
@@ -49,6 +51,7 @@ class ProgramController extends AbstractController
         if($form->isSubmitted() && $form->isValid()){
             $slug = $slugify->generate($program->getTitle());
             $program->setSlug($slug);
+            $program->setOwner($this->getUser());
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($program);
             $entityManager->flush();
@@ -81,6 +84,33 @@ class ProgramController extends AbstractController
             );
         }
         return $this->render('program/show.html.twig', ['program' => $program, 'seasons' => $seasons]);
+    }
+
+    /**
+     * @Route("/{slug}/edit", name="edit")
+     * @return Response
+     */
+    public function edit(Request $request, Program $program, EntityManagerInterface $entityManager, Slugify $slugify): Response
+    {
+        $form = $this->createForm(ProgramType::class, $program);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            if (!($this->getUser() == $program->getOwner())) {
+                // If not the owner, throws a 403 Access Denied exception
+                throw new AccessDeniedException('Only the owner can edit the program!');
+            }
+            $slug = $slugify->generate($program->getTitle());
+            $program->setSlug($slug);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('program_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->renderForm('program/edit.html.twig', [
+            'program' => $program,
+            'form' => $form,
+        ]);
     }
 
     /**
@@ -128,5 +158,26 @@ class ProgramController extends AbstractController
         }
 
         return $this->redirectToRoute('program_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+
+    #[Route('/comment/{id}', name: 'comment_delete', methods: ['POST'])]
+    public function ComentDelete(Request $request, EntityManagerInterface $entityManager, Comment $comment): Response
+    {
+        if ($this->getUser() !== $comment->getUser() && !$this->isGranted('ROLE_ADMIN')) {
+            throw new AccessDeniedException('Only the author can remove the comment!');
+        }
+
+        $submittedToken = $request->request->get('token');
+        if ($this->isCsrfTokenValid('delete-item', $submittedToken)) {
+            $entityManager->remove($comment);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('program_episode_show', [
+            'program_slug' => $comment->getEpisode()->getSeason()->getProgram()->getSlug(),
+            'season' => $comment->getEpisode()->getSeason()->getId(),
+            'episode_slug' => $comment->getEpisode()->getSlug(),
+        ], Response::HTTP_SEE_OTHER);
     }
 }

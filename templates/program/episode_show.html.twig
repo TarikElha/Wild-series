@@ -11,7 +11,17 @@
         <h2>Commentaires :</h2>
         <ul>
             {% for comment in comments %}
-                <li>{{ comment.user.email }} => {{ comment.rate }} / 5, {{ comment.comment }}</li>
+                <li>
+                    {{ comment.user.email }} => {{ comment.rate }} / 5, {{ comment.comment }}
+                    {% if app.user == comment.getUser() or is_granted('ROLE_ADMIN') %}
+                        <form action="{{ path('program_comment_delete', { id : comment.id }) }}" method="post">
+                            {# the argument of csrf_token() is an arbitrary string used to generate the token #}
+                            <input type="hidden" name="token" value="{{ csrf_token('delete-item') }}"/>
+                    
+                            <button type="submit">Delete item</button>
+                        </form>
+                    {% endif %}
+                </li>
             {% else %}
                 <p>Aucun commentaire pour cet épisode.</p>
             {% endfor %}
