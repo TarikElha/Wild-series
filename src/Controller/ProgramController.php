@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use App\Form\ProgramType;
+use App\Form\SearchProgramType;
 use App\Form\CommentType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,6 +21,7 @@ use App\Entity\Comment;
 use App\Repository\SeasonRepository;
 use App\Repository\EpisodeRepository;
 use App\Repository\CommentRepository;
+use App\Repository\ProgramRepository;
 use App\Service\Slugify;
 
     /**
@@ -30,13 +32,22 @@ class ProgramController extends AbstractController
     /**
      * @Route("/", name="index")
      */
-    public function index(): Response
+    public function index(Request $request, ProgramRepository $programRepository): Response
     {
-        $programs = $this->getDoctrine()
-                        ->getRepository(Program::class)
-                        ->findAll();
-        
-        return $this->render('program/index.html.twig', ['programs' => $programs]);
+        $form = $this->createForm(SearchProgramType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $search = $form->getData()['search'];
+            $programs = $programRepository->findLikeName($search);
+        } else {
+            $programs = $programRepository->findAll();
+        }
+
+        return $this->render('program/index.html.twig', [
+            'programs' => $programs,
+            'form' => $form->createView(),
+        ]);
     }
 
     /**
