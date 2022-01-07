@@ -67,6 +67,8 @@ class ProgramController extends AbstractController
             $entityManager->persist($program);
             $entityManager->flush();
 
+            $this->addFlash('success', 'The new program has been created');
+
             $email = (new Email())
                 ->from($this->getParameter('mailer_from'))
                 ->to('your_email@example.com')
@@ -114,6 +116,8 @@ class ProgramController extends AbstractController
             $slug = $slugify->generate($program->getTitle());
             $program->setSlug($slug);
             $entityManager->flush();
+
+            $this->addFlash('success', 'The program has been edited');
 
             return $this->redirectToRoute('program_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -166,6 +170,7 @@ class ProgramController extends AbstractController
         if ($this->isCsrfTokenValid('delete'.$program->getId(), $request->request->get('_token'))) {
             $entityManager->remove($program);
             $entityManager->flush();
+            $this->addFlash('danger', 'The program has been deleted');
         }
 
         return $this->redirectToRoute('program_index', [], Response::HTTP_SEE_OTHER);
