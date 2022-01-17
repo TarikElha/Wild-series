@@ -20,7 +20,7 @@ class Comment
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="comment")
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="comments")
      */
     private $author;
 
