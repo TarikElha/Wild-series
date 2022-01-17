@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon compte{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_logout') }}"> Se déconnecter</a></p>
+    Programmes ajoutés :
+    <ul>
+        {% for program in user.programs %}
+            <li>
+                <a href="{{ path('program_show', { slug : program.slug }) }}">
+                    {{ program.title }}
+                </a>
+            </li>
+        {% else %}
+            <p>Aucun programme ajouté.</p>
+        {% endfor %}
+    </ul>
+    Commentaires postés :
+     <ul>
+        {% for comment in user.comments %}
+            <li>
+                <a href="{{ path('program_episode_show', { program_slug : comment.episode.season.program.slug, season : comment.episode.season.id, episode_slug : comment.episode.slug }) }}">
+                    {{ comment.comment }} ( {{ comment.episode.season.program.title }} / saison {{ comment.episode.season.number }} / episode {{ comment.episode.number }} )
+                </a>
+            </li>
+        {% else %}
+            <p>Aucun commentaire posté.</p>
+        {% endfor %}
+    </ul>
+{% endblock %}

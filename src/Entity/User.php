@@ -6,11 +6,13 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
+ * @UniqueEntity(fields={"email"}, message="There is already an account with this email")
  */
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -32,35 +34,65 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $roles = [];
 
     /**
+    * @ORM\OneToMany(targetEntity=Comment::class, mappedBy="author")
+    */
+    private $comments;
+
+    /**
      * @var string The hashed password
      * @ORM\Column(type="string")
      */
     private $password;
 
     /**
-     * @ORM\OneToMany(targetEntity=Comment::class, mappedBy="author")
-     */
-    private $comment;
-
-    /**
      * @ORM\OneToMany(targetEntity=Program::class, mappedBy="owner")
      */
     private $programs;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isVerified = false;
+
     public function __construct()
     {
         $this->programs = new ArrayCollection();
+        $this->comments = new ArrayCollection();
     }
 
-    public function getComment(): ?string
+    /**
+    * @return Collection|Comments[]
+    */
+    public function getComments(): Collection
     {
-        return $this->comment;
+        return $this->comments;
     }
 
-    public function setComment(string $comment): self
+    /**
+     * @param Comment $comment
+     * @return User
+     */
+    public function addComment(Comment $comment): self
     {
-        $this->comment = $comment;
+        if (!$this->comments->contains($comment)) {
+            $this->comments[] = $comment;
+            $comment->setUser($this);
+        }
+        return $this;
+    }
 
+    /**
+     * @param Comment $comment
+     * @return User
+     */
+    public function removeComment(Comment $comment): self
+    {
+        if ($this->comments->removeElement($comment)) {
+            // set the owning side to null (unless already changed)
+            if ($comment->getUser() === $this) {
+                $comment->setUser(null);
+            }
+        }
         return $this;
     }
 
@@ -179,6 +211,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $program->setOwner(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): self
+    {
+        $this->isVerified = $isVerified;
 
         return $this;
     }
