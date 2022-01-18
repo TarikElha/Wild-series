@@ -178,7 +178,7 @@ class ProgramController extends AbstractController
 
 
     #[Route('/comment/{id}', name: 'comment_delete', methods: ['POST'])]
-    public function ComentDelete(Request $request, EntityManagerInterface $entityManager, Comment $comment): Response
+    public function CommentDelete(Request $request, EntityManagerInterface $entityManager, Comment $comment): Response
     {
         if ($this->getUser() !== $comment->getUser() && !$this->isGranted('ROLE_ADMIN')) {
             throw new AccessDeniedException('Only the author can remove the comment!');
@@ -195,5 +195,20 @@ class ProgramController extends AbstractController
             'season' => $comment->getEpisode()->getSeason()->getId(),
             'episode_slug' => $comment->getEpisode()->getSlug(),
         ], Response::HTTP_SEE_OTHER);
+    }
+
+    /**
+     * @Route("/{id}/watchlist", name="watchlist_add", methods={"GET"})
+     */
+    public function addToWatchlist(Program $program, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->getUser()->isInWatchList($program))
+            $this->getUser()->removeFromWatchlist($program);
+        else
+            $this->getUser()->addToWatchlist($program);
+
+        $entityManager->flush();
+
+        return $this->redirectToRoute('program_show', [ 'slug' => $program->getSlug() ]);
     }
 }
