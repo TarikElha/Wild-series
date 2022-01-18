@@ -28,4 +28,14 @@
             <p>Aucun commentaire posté.</p>
         {% endfor %}
     </ul>
+    Watchlist :
+    <ul>
+       {% for watch in user.watchlist %}
+           <li>
+               {{ watch.title }}
+           </li>
+       {% else %}
+           <p>Watchlist vide.</p>
+       {% endfor %}
+   </ul>
 {% endblock %}
