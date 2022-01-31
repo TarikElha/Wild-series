@@ -75,4 +75,11 @@ class CategoryController extends AbstractController
             ]
         );
     }
+
+    public function navbarTop(CategoryRepository $categoryRepository): Response
+    {
+        return $this->render('_navbartop.html.twig', [
+            'categories' => $categoryRepository->findBy([], ['id' => 'DESC'])
+        ]);
+    }
 }
