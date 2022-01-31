@@ -24,9 +24,9 @@ use App\Repository\CommentRepository;
 use App\Repository\ProgramRepository;
 use App\Service\Slugify;
 
-    /**
-     * @Route("/program", name="program_")
-     */
+/**
+ * @Route("/program", name="program_")
+*/
 class ProgramController extends AbstractController
 {
     /**
