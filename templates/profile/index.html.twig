@@ -1,9 +1,15 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Mon compte{% endblock %}
+{% block title %}
+    {% trans with {'%username%': app.user.email} %} hello_username {% endtrans %}!
+{% endblock %}
 
 {% block body %}
-    <p><a href="{{ path('app_logout') }}"> Se déconnecter</a></p>
+    <p>
+        <a href="{{ path('app_logout') }}">
+            {{ 'account.logout'|trans }}
+        </a>
+    </p>
     Programmes ajoutés :
     <ul>
         {% for program in user.programs %}

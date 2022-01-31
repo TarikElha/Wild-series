@@ -1,4 +1,4 @@
-<nav class="navbar navbar-dark" style="background-color: #004777;">
+    <nav class="navbar navbar-dark" style="background-color: #004777;">
     <a class="navbar-brand" href="/">Wild series</a>
     <div class="navbar-nav dropdown">
         <a class="nav-item dropdown-toggle" href="#">Catégories</a>
@@ -18,9 +18,25 @@
             <a class="dropdown-item" href="#">First favori</a>
         </div>
     </div>
+    <div class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+            {{ app.request.locale|upper }}<span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+            {% for locale in locales %}
+            <li>
+                <a href="{{ path(app.request.get('_route'), app.request.attributes.get('_route_params')|merge({'_locale': locale})) }}">
+                    {{ locale|upper }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
     {% if app.user %}
-        <a href="{{ path('profile_show') }}">Mon compte ({{ app.user.email }})</a>
+        <a href="{{ path('profile_show') }}">
+            {% trans with {'%username%': app.user.email} %} hello_username {% endtrans %}!
+        </a>
     {% else %}
-        <a href="{{ path('login') }}"> Se connecter</a>
+        <a href="{{ path('login') }}">{{ 'account.login'|trans }}</a>
     {% endif %}
 </nav>

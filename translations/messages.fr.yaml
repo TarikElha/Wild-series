@@ -1,0 +1,3 @@
+hello_username: Bonjour %username%
+account.logout: Se déconnecter
+account.login: Se connecter
