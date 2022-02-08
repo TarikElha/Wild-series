@@ -260,4 +260,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return in_array($program, $this->watchlist->toArray());
     }
+
+    public function getIsVerified(): ?bool
+    {
+        return $this->isVerified;
+    }
+
+    public function addWatchlist(Program $watchlist): self
+    {
+        if (!$this->watchlist->contains($watchlist)) {
+            $this->watchlist[] = $watchlist;
+        }
+
+        return $this;
+    }
+
+    public function removeWatchlist(Program $watchlist): self
+    {
+        $this->watchlist->removeElement($watchlist);
+
+        return $this;
+    }
 }

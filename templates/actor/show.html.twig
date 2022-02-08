@@ -3,7 +3,7 @@
 {% block title %}Wild Series{% endblock %}
 
 {% block body %}
-
+    <img src="{{ vich_uploader_asset(actor) }}" alt="{{ actor.name }}"/>
     <h1>{{ actor.name }} : </h1>
 
     {% for program in programs %}
