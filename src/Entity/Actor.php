@@ -6,9 +6,14 @@ use App\Repository\ActorRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints\DateTime;
+use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
  * @ORM\Entity(repositoryClass=ActorRepository::class)
+ * @Vich\Uploadable
  */
 class Actor
 {
@@ -23,6 +28,26 @@ class Actor
      * @ORM\Column(type="string", length=255)
      */
     private $name;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $poster;
+
+     /**
+     * @Vich\UploadableField(mapping="poster_file", fileNameProperty="poster")
+     * @Assert\File(
+     *      maxSize = "1M",
+     *      mimeTypes = {"image/jpeg", "image/png", "image/webp"},
+     * )
+     * @var File
+     */
+    private $posterFile;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $updatedAt;
 
     /**
      * @ORM\ManyToMany(targetEntity=Program::class, inversedBy="actors")
@@ -71,6 +96,38 @@ class Actor
     public function removeProgram(Program $program): self
     {
         $this->programs->removeElement($program);
+
+        return $this;
+    }
+
+    public function setPosterFile(File $image = null):Actor
+    {
+        $this->posterFile = $image;
+        if ($image){
+            $this->updatedAt = new \DateTime('now');
+        }
+        
+        return $this;
+    }
+
+    public function getPosterFile(): ?File
+    {
+        return $this->posterFile;
+    }
+
+    public function getUpdatedAt(): ?DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function getPoster(): ?string
+    {
+        return $this->poster;
+    }
+
+    public function setPoster(?string $poster): self
+    {
+        $this->poster = $poster;
 
         return $this;
     }
